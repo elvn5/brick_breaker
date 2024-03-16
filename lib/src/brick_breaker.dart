@@ -2,12 +2,16 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:flame/components.dart';
+import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 
 import 'components/components.dart';
 import 'config.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
-class BrickBreaker extends FlameGame {
+class BrickBreaker extends FlameGame
+    with HasCollisionDetection, KeyboardEvents {
   BrickBreaker()
       : super(
           camera: CameraComponent.withFixedResolution(
@@ -41,6 +45,24 @@ class BrickBreaker extends FlameGame {
       ),
     );
 
+    world.add(Bat(
+        size: Vector2(batWidth, batHeight),
+        cornerRadius: const Radius.circular(ballRadius / 2),
+        position: Vector2(width / 2, height * 0.95)));
+
     debugMode = true;
+  }
+
+  @override
+  KeyEventResult onKeyEvent(
+      KeyEvent event, Set<LogicalKeyboardKey> keysPressed) {
+    super.onKeyEvent(event, keysPressed);
+    switch (event.logicalKey) {
+      case LogicalKeyboardKey.arrowLeft:
+        world.children.query<Bat>().first.moveBy(-batStep);
+      case LogicalKeyboardKey.arrowRight:
+        world.children.query<Bat>().first.moveBy(batStep);
+    }
+    return KeyEventResult.handled;
   }
 }
